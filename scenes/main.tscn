@@ -1,0 +1,268 @@
+[gd_scene load_steps=10 format=3 uid="uid://main_scene"]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/car_system.gd" id="3_car"]
+[ext_resource type="Script" path="res://scripts/weapon_system.gd" id="4_weapon"]
+
+[sub_resource type="WorldEnvironment" id="1_env"]
+environment = SubResource("1_env_res")
+
+[sub_resource type="Environment" id="1_env_res"]
+background_mode = 2
+background_sky = SubResource("1_sky")
+ambient_light_color = Color(0.3, 0.35, 0.4, 1)
+ambient_light_energy = 0.5
+tonemap_mode = 3
+tonemap_exposure = 1.0
+ssao_enabled = true
+ssao_radius = 2.0
+ssao_intensity = 1.5
+ssao_quality = 3
+glow_enabled = true
+glow_intensity = 0.8
+glow_strength = 1.2
+glow_bloom = 0.5
+glow_hdr_threshold = 1.5
+glow_hdr_scale = 2.0
+sdfgi_enabled = true
+sdfgi_cascade_0_distance = 20.0
+sdfgi_cascade_1_distance = 50.0
+sdfgi_cascade_2_distance = 100.0
+sdfgi_cascade_3_distance = 300.0
+sdfgi_y_scale = 2.0
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.02
+volumetric_fog_albedo = Color(0.8, 0.8, 0.85, 1)
+volumetric_fog_emission = Color(0.1, 0.1, 0.15, 1)
+volumetric_fog_length = 200.0
+
+[sub_resource type="ProceduralSky" id="1_sky"]
+sky_top_color = Color(0.1, 0.2, 0.5, 1)
+sky_horizon_color = Color(0.3, 0.4, 0.6, 1)
+ground_bottom_color = Color(0.05, 0.1, 0.15, 1)
+ground_horizon_color = Color(0.2, 0.25, 0.3, 1)
+sun_angle_max = 45.0
+sun_angle_min = 10.0
+
+[sub_resource type="CapsuleShape3D" id="1_capsule"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="BoxShape3D" id="1_box"]
+size = Vector3(2.2, 1.2, 4.8)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("1_env")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+light_energy = 2.0
+light_color = Color(1, 0.95, 0.85, 1)
+shadow_enabled = true
+shadow_bias = 0.05
+shadow_normal_bias = 0.5
+shadow_blur = 4.0
+directional_shadow_mode = 1
+directional_shadow_size = 4096
+directional_shadow_range = 500.0
+directional_shadow_length = 1000.0
+rotation = Vector3(0.785398, 0, 0)
+
+[node name="AmbientLight3D" type="AmbientLight3D" parent="."]
+light_energy = 0.5
+light_color = Color(0.5, 0.6, 0.8, 1)
+
+[node name="Player" type="CharacterBody3D" parent="."]
+script = ExtResource("2_player")
+collision_layer = 2
+collision_mask = 7
+position = Vector3(0, 2, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
+shape = SubResource("1_capsule")
+
+[node name="Camera3D" type="Camera3D" parent="Player"]
+current = true
+fov = 75.0
+near = 0.1
+far = 1000.0
+position = Vector3(0, 2, 4)
+
+[node name="WeaponSystem" type="Node3D" parent="Player"]
+script = ExtResource("4_weapon")
+
+[node name="NissanGTR" type="CharacterBody3D" parent="."]
+script = ExtResource("3_car")
+collision_layer = 3
+collision_mask = 7
+position = Vector3(10, 0.5, 5)
+is_driven = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NissanGTR"]
+shape = SubResource("1_box")
+
+[node name="CarModel" type="Node3D" parent="NissanGTR"]
+
+[node name="EngineSound" type="AudioStreamPlayer3D" parent="NissanGTR"]
+max_distance = 50.0
+unit_size = 10.0
+volume_db = -10
+
+[node name="HornSound" type="AudioStreamPlayer3D" parent="NissanGTR"]
+max_distance = 100.0
+unit_size = 20.0
+volume_db = -5
+
+[node name="Roof" type="Node3D" parent="NissanGTR/CarModel"]
+position = Vector3(0, 0.7, -0.3)
+
+[node name="Ground" type="MeshInstance3D" parent="."]
+mesh = SubResource("1_plane")
+rotation = Vector3(-1.570796, 0, 0)
+position = Vector3(0, -0.5, 0)
+
+[sub_resource type="PlaneMesh" id="1_plane"]
+size = Vector2(1000, 1000)
+subdivide_width = 50
+subdivide_height = 50
+
+[node name="GroundMaterial" type="StandardMaterial3D" parent="Ground"]
+albedo_color = Color(0.3, 0.5, 0.2, 1)
+roughness = 0.8
+
+[node name="HUD" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HealthBar" type="ProgressBar" parent="HUD"]
+position = Vector2(20, 20)
+size = Vector2(200, 20)
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+
+[node name="ArmorBar" type="ProgressBar" parent="HUD"]
+position = Vector2(20, 45)
+size = Vector2(200, 15)
+min_value = 0.0
+max_value = 100.0
+value = 0.0
+
+[node name="StaminaBar" type="ProgressBar" parent="HUD"]
+position = Vector2(20, 65)
+size = Vector2(200, 10)
+min_value = 0.0
+max_value = 100.0
+value = 100.0
+
+[node name="AmmoLabel" type="Label" parent="HUD"]
+position = Vector2(1770, 1030)
+size = Vector2(150, 30)
+text = "30/90"
+add_theme_font_size_override("font_size", 20)
+add_theme_color_override("font_color", Color(1, 1, 1, 1))
+
+[node name="WeaponName" type="Label" parent="HUD"]
+position = Vector2(1770, 1000)
+size = Vector2(150, 30)
+text = "M4"
+add_theme_font_size_override("font_size", 16)
+add_theme_color_override("font_color", Color(1, 0.8, 0, 1))
+
+[node name="SpeedLabel" type="Label" parent="HUD"]
+position = Vector2(1720, 20)
+size = Vector2(200, 30)
+text = "0 km/h"
+add_theme_font_size_override("font_size", 16)
+visible = false
+
+[node name="GearLabel" type="Label" parent="HUD"]
+position = Vector2(1720, 50)
+size = Vector2(200, 30)
+text = "N"
+add_theme_font_size_override("font_size", 20)
+visible = false
+
+[node name="InteractHint" type="Label" parent="HUD"]
+position = Vector2(910, 1000)
+size = Vector2(100, 30)
+text = "[E] Interact"
+add_theme_font_size_override("font_size", 16)
+add_theme_color_override("font_color", Color(1, 1, 0, 1))
+horizontal_alignment = 1
+visible = false
+
+[node name="Crosshair" type="TextureRect" parent="HUD"]
+position = Vector2(945, 525)
+size = Vector2(30, 30)
+
+[node name="NotificationLabel" type="Label" parent="HUD"]
+position = Vector2(860, 300)
+size = Vector2(200, 40)
+text = ""
+add_theme_font_size_override("font_size", 18)
+add_theme_color_override("font_color", Color(0, 1, 0, 1))
+horizontal_alignment = 1
+visible = false
+
+[node name="ModMenu" type="Panel" parent="HUD"]
+visible = false
+position = Vector2(400, 200)
+size = Vector2(400, 300)
+add_theme_stylebox_override("panel", SubResource("1_panel_style"))
+
+[sub_resource type="StyleBoxFlat" id="1_panel_style"]
+bg_color = Color(0.1, 0.1, 0.2, 0.9)
+border_color = Color(0.2, 0.2, 0.3, 1)
+border_width_left = 2
+border_width_right = 2
+border_width_top = 2
+border_width_bottom = 2
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+corner_radius_bottom_right = 10
+
+[node name="ModMenuTitle" type="Label" parent="HUD/ModMenu"]
+position = Vector2(150, 20)
+size = Vector2(100, 30)
+text = "MOD MENU"
+add_theme_font_size_override("font_size", 24)
+add_theme_color_override("font_color", Color(0, 1, 0, 1))
+
+[node name="ModButton1" type="Button" parent="HUD/ModMenu"]
+position = Vector2(50, 70)
+size = Vector2(300, 40)
+text = "1. Toggle Roof"
+add_theme_font_size_override("font_size", 16)
+
+[node name="ModButton2" type="Button" parent="HUD/ModMenu"]
+position = Vector2(50, 120)
+size = Vector2(300, 40)
+text = "2. Change Character"
+add_theme_font_size_override("font_size", 16)
+
+[node name="ModButton3" type="Button" parent="HUD/ModMenu"]
+position = Vector2(50, 170)
+size = Vector2(300, 40)
+text = "3. Spawn NPC"
+add_theme_font_size_override("font_size", 16)
+
+[node name="ModButton4" type="Button" parent="HUD/ModMenu"]
+position = Vector2(50, 220)
+size = Vector2(300, 40)
+text = "4. Reset Game"
+add_theme_font_size_override("font_size", 16)
+
+[node name="ModButton5" type="Button" parent="HUD/ModMenu"]
+position = Vector2(50, 270)
+size = Vector2(300, 40)
+text = "5. Close Mod Menu"
+add_theme_font_size_override("font_size", 16)
