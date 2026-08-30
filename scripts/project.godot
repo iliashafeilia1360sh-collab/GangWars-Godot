@@ -1,0 +1,6 @@
+[application]
+config/name="Gang Wars Pixel 3D"
+run/main_scene="res://scripts/main.gd"
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
